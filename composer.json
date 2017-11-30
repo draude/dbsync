@@ -1,0 +1,35 @@
+{
+    "name": "revosystems/db-sync",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eduard Duocastella Altimira",
+            "email": "eduard.duocastella@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=5.6.4",
+        "guzzlehttp/guzzle": "^6.3",
+        "spatie/db-dumper": "^2.8",
+        "symfony/process": "^3.3",
+        "illuminate/filesystem": "^5.5"
+    },
+    "require-dev": {
+        "fzaninotto/faker": "~1.4",
+        "mockery/mockery": "0.9.*",
+        "vlucas/phpdotenv": "^2.4",
+        "phpunit/phpunit": "~5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "RevoSystems\\DBSync\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    }
+}
