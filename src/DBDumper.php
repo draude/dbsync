@@ -7,48 +7,64 @@ use Spatie\DbDumper\Exceptions\DumpFailed;
 
 class DBDumper {
 
-    protected $db_name;
+    protected $dbName;
     protected $tables;
     protected $from;
+    protected $dbUsername;
+    protected $dbPassword;
+    protected $dbHost;
+    protected $tablesPrefix;
     
-    public function __construct($revoUser, $tables)
-    {
-        $this->db_name  = $revoUser->databaseName();
-        $this->tables   = $revoUser->tablesToSync();
-        $this->from     = $revoUser->lastUploadSync();
+    public function __construct($dbHost, $dbUsername, $dbPassword, $db_name, $tables, $tablesPrefix, $from) {
+        $this->dbName      = $db_name;
+        $this->tables       = $tables;
+        $this->from         = $from;
+        $this->dbUsername   = $dbUsername;
+        $this->dbPassword   = $dbPassword;
+        $this->dbHost       = $dbHost;
+        $this->tablesPrefix = $tablesPrefix;
     }
     
-    public function create($withoutCreateTables = true) {
+    private function create($createTables) {
         $mysqlCall = $this->generateMysqlCall();
-        if ($withoutCreateTables) {
-            return $mysqlCall->addExtraOption("-t");
+        if ($createTables) {
+            return $mysqlCall;
         }
-        return $mysqlCall;
+        return $mysqlCall->addExtraOption("-t");
     }
     
     private function generateMysqlCall() {
-        $userName       = config('database.connections.mysql.username');
-        $password       = config('database.connections.mysql.password');
         try {
             return MySql::create()
+                ->setHost($this->dbHost)
                 ->dontUseExtendedInserts()
                 ->skipComments()
-                ->setDbName($this->db_name)
-                ->setUserName($userName)
-                ->setPassword($password)
-                ->includeTables($this->tables)
+                ->setDbName($this->dbName)
+                ->setUserName($this->dbUsername)
+                ->setPassword($this->dbPassword)
+                ->includeTables($this->tablesWithPrefix())
                 ->addExtraOption("--replace");
         } catch (CannotSetParameter $e) {
+            return $e->getMessage();
         }
     }
     
-    public function dump($filename) {
+    public function tablesWithPrefix() {
+        return collect($this->tables)->map(function ($tableName) {
+            return $this->tablesPrefix.$tableName;
+        })->toArray();
+    }
+    
+    public function dump($filePath,$createTables = false) {
         try {
-            $this->create()
-                ->addExtraOption("--where=\"updated_at > '$this->from'\"")
-                ->dumpToFile(public_path($filename));
+            $mySqlCall = $this->create($createTables);
+                if ($this->from !== "")
+                    $mySqlCall->addExtraOption("--where=\"updated_at > '$this->from'\"");
+                $mySqlCall->dumpToFile($filePath);
         } catch (CannotStartDump $e) {
+            return $e->getMessage();
         } catch (DumpFailed $e) {
+            return $e->getMessage();
         }
     }
 }
