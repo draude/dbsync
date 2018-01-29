@@ -42,15 +42,16 @@ class DBDumper {
                 ->setDbName($this->dbName)
                 ->setUserName($this->dbUsername)
                 ->setPassword($this->dbPassword)
-                ->includeTables($this->tablesWithPrefix())
+                ->includeTables($this->tablesWithPrefix($this->tables["include"]))
+                ->excludeTables($this->tablesWithPrefix($this->tables["exclude"]))
                 ->addExtraOption("--replace");
         } catch (CannotSetParameter $e) {
             return $e->getMessage();
         }
     }
     
-    public function tablesWithPrefix() {
-        return collect($this->tables)->map(function ($tableName) {
+    public function tablesWithPrefix($tables) {
+        return collect($tables)->map(function ($tableName) {
             return $this->tablesPrefix.$tableName;
         })->toArray();
     }
