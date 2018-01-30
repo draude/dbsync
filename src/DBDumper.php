@@ -27,6 +27,7 @@ class DBDumper {
     
     private function create($createTables) {
         $mysqlCall = $this->generateMysqlCall();
+        $mysqlCall = $this->filterTables($mysqlCall);
         if ($createTables) {
             return $mysqlCall;
         }
@@ -42,8 +43,6 @@ class DBDumper {
                 ->setDbName($this->dbName)
                 ->setUserName($this->dbUsername)
                 ->setPassword($this->dbPassword)
-                ->includeTables($this->tablesWithPrefix($this->tables["include"]))
-                ->excludeTables($this->tablesWithPrefix($this->tables["exclude"]))
                 ->addExtraOption("--replace");
         } catch (CannotSetParameter $e) {
             return $e->getMessage();
@@ -67,5 +66,16 @@ class DBDumper {
         } catch (DumpFailed $e) {
             return $e->getMessage();
         }
+    }
+    
+    /**
+     * @param $mysqlCall
+     */
+    private function filterTables($mysqlCall)
+    {
+        if (count($this->tables["include"]) > 0)
+            return $mysqlCall->includeTables($this->tablesWithPrefix($this->tables["include"]));
+        
+        return $mysqlCall->excludeTables($this->tablesWithPrefix($this->tables["exclude"]));
     }
 }
