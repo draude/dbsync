@@ -28,9 +28,9 @@ class DBDumper {
     private function create($createTables) {
         $mysqlCall = $this->generateMysqlCall();
         $mysqlCall = $this->filterTables($mysqlCall);
-        if ($createTables) {
+        //if ($createTables) {
             return $mysqlCall;
-        }
+        //}
         return $mysqlCall->addExtraOption("-t");
     }
     
@@ -43,7 +43,9 @@ class DBDumper {
                 ->setDbName($this->dbName)
                 ->setUserName($this->dbUsername)
                 ->setPassword($this->dbPassword)
-                ->addExtraOption("--replace");
+                ->addExtraOption("--replace")
+                ->addExtraOption("--extended-insert")
+                ->addExtraOption("--complete-insert");
         } catch (CannotSetParameter $e) {
             return $e->getMessage();
         }
