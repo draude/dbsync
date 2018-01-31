@@ -25,13 +25,13 @@ class DBDumper {
         $this->tablesPrefix = $tablesPrefix;
     }
     
-    private function create($createTables) {
+    private function create() {
         $mysqlCall = $this->generateMysqlCall();
         $mysqlCall = $this->filterTables($mysqlCall);
         //if ($createTables) {
             return $mysqlCall;
         //}
-        return $mysqlCall->addExtraOption("-t");
+//        return $mysqlCall->addExtraOption("-t");
     }
     
     private function generateMysqlCall() {
@@ -45,7 +45,9 @@ class DBDumper {
                 ->setPassword($this->dbPassword)
                 ->addExtraOption("--replace")
                 ->addExtraOption("--extended-insert")
-                ->addExtraOption("--complete-insert");
+                ->addExtraOption("--complete-insert")
+                ->addExtraOption("--skip-add-drop-table")
+                ->addExtraOption("--skip-comments");
         } catch (CannotSetParameter $e) {
             return $e->getMessage();
         }
@@ -57,9 +59,9 @@ class DBDumper {
         })->toArray();
     }
     
-    public function dump($filePath,$createTables = false) {
+    public function dump($filePath) {
         try {
-            $mySqlCall = $this->create($createTables);
+            $mySqlCall = $this->create();
                 if ($this->from !== "")
                     $mySqlCall->addExtraOption("--where=\"updated_at > '$this->from'\"");
                 $mySqlCall->dumpToFile($filePath);
