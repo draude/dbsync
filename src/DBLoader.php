@@ -1,6 +1,7 @@
 <?php namespace RevoSystems\DBSync;
 
 use File;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class DBLoader {
