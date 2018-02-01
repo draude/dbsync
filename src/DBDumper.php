@@ -59,17 +59,31 @@ class DBDumper {
         })->toArray();
     }
     
-    public function dump($filePath) {
+    public function dump($filePath,$createTables = false) {
         try {
-            $mySqlCall = $this->create();
-                if ($this->from !== "")
-                    $mySqlCall->addExtraOption("--where=\"updated_at > '$this->from'\"");
-                $mySqlCall->dumpToFile($filePath);
+            $mySqlCall = $this->create($createTables);
+            if ($this->from !== "")
+                $mySqlCall->addExtraOption("--where=\"updated_at > '$this->from'\"");
+            $mySqlCall->dumpToFile($filePath);
+            $this->tablePrefixToUpercase($filePath);
+            $this->addCreateTableIfNotExists($filePath);
         } catch (CannotStartDump $e) {
             return $e->getMessage();
         } catch (DumpFailed $e) {
             return $e->getMessage();
         }
+    }
+    
+    private function tablePrefixToUpercase($path) {
+        $str=file_get_contents($path);
+        $str=str_replace("`gs_", "`GS_",$str);
+        file_put_contents($path, $str);
+    }
+    
+    private function addCreateTableIfNotExists($path) {
+        $str=file_get_contents($path);
+        $str=str_replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS",$str);
+        file_put_contents($path, $str);
     }
     
     /**
