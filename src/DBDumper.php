@@ -82,6 +82,7 @@ class DBDumper {
     
     private function addCreateTableIfNotExists($path) {
         $str=file_get_contents($path);
+        $str=str_replace("CREATE TABLE IF NOT EXISTS", "CREATE TABLE",$str);
         $str=str_replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS",$str);
         file_put_contents($path, $str);
     }
