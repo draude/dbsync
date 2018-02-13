@@ -47,6 +47,7 @@ class DBDumper {
                 ->addExtraOption("--extended-insert")
                 ->addExtraOption("--complete-insert")
                 ->addExtraOption("--skip-add-drop-table")
+                ->addExtraOption("--set-gtid-purged=OFF")
                 ->addExtraOption("--skip-comments");
         } catch (CannotSetParameter $e) {
             return $e->getMessage();
