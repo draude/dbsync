@@ -6,7 +6,7 @@ use Spatie\DbDumper\Exceptions\CannotStartDump;
 use Spatie\DbDumper\Exceptions\DumpFailed;
 
 class DBDumper {
-
+    
     protected $dbName;
     protected $tables;
     protected $from;
@@ -29,7 +29,7 @@ class DBDumper {
         $mysqlCall = $this->generateMysqlCall();
         $mysqlCall = $this->filterTables($mysqlCall);
         //if ($createTables) {
-            return $mysqlCall;
+        return $mysqlCall;
         //}
 //        return $mysqlCall->addExtraOption("-t");
     }
@@ -47,7 +47,6 @@ class DBDumper {
                 ->addExtraOption("--extended-insert")
                 ->addExtraOption("--complete-insert")
                 ->addExtraOption("--skip-add-drop-table")
-                ->addExtraOption("--set-gtid-purged=OFF")
                 ->addExtraOption("--skip-comments");
         } catch (CannotSetParameter $e) {
             return $e->getMessage();
@@ -60,11 +59,15 @@ class DBDumper {
         })->toArray();
     }
     
-    public function dump($filePath,$createTables = false) {
+    public function dump($filePath,$removeGTID = true) {
         try {
-            $mySqlCall = $this->create($createTables);
+            $mySqlCall = $this->create();
             if ($this->from !== "")
                 $mySqlCall->addExtraOption("--where=\"updated_at > '$this->from'\"");
+            
+            if ($removeGTID)
+                $mySqlCall->addExtraOption("--set-gtid-purged=OFF");
+            
             $mySqlCall->dumpToFile($filePath);
             $this->tablePrefixToUpercase($filePath);
             $this->addCreateTableIfNotExists($filePath);
