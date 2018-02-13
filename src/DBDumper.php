@@ -84,6 +84,10 @@ class DBDumper {
         $str=file_get_contents($path);
         $str=str_replace("CREATE TABLE IF NOT EXISTS", "CREATE TABLE",$str);
         $str=str_replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS",$str);
+        $str=str_replace("SET @MYSQLDUMP", "/*!40111 SET @MYSQLDUMP",$str);
+        $str=str_replace("SET @@SESSION", "/*!40111 SET @@SESSION",$str);
+        $str=str_replace("SET @@GLOBAL", "/*!40111 SET @@GLOBAL",$str);
+        
         file_put_contents($path, $str);
     }
     
