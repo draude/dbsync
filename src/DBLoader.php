@@ -6,8 +6,10 @@ use Symfony\Component\Process\Process;
 
 class DBLoader {
     
-    public static function loadFile($dbUsername, $dbPassword, $databaseFile,$revo_db) {
-        $command = "mysql --user=".$dbUsername." --password=".$dbPassword. " $revo_db < $databaseFile";
+    public static function loadFile($dbUsername, $dbPassword, $databaseFile,$revo_db,$dbHost = "") {
+        if ($dbHost !== "")
+            $dbHost = "--host=$dbHost";
+        $command = "mysql $dbHost --user=".$dbUsername." --password=".$dbPassword. " $revo_db < $databaseFile";
         $process = new Process($command);
         $process->run();
     
